@@ -104,7 +104,7 @@
 
     .scientific-row {
       display: grid;
-      grid-template-columns: minmax(72px, 1fr) auto minmax(58px, 0.7fr) auto minmax(110px, 1.2fr);
+      grid-template-columns: minmax(72px, 1fr) auto minmax(58px, 0.7fr) auto minmax(130px, 1.2fr);
       gap: 8px;
       align-items: center;
     }
@@ -364,14 +364,14 @@
   <script>
     const frequencies = ["50 Hz", "250 Hz", "1000 Hz", "5000 Hz", "10 000 Hz", "15 000 Hz"];
     const valueIds = ["u50", "u250", "u1000", "u5000", "u10000", "u15000"];
-    const voltageLabels = ["U50", "U250", "U1000", "U5000", "U10000", "U15000"];
     const inputIds = valueIds.flatMap(id => [`${id}_x`, `${id}_y`]);
+
     const nicknamePlaceholders = [
       "Agresivní křeček",
       "Pompézní klokan",
       "Vražedný sumýš",
       "Brutální mravenečník",
-      "Závodní medůza",
+      "Závodní medúza",
       "Nekompromisní makak",
       "Zadumaný kojot",
       "Bojovný lenochod"
@@ -386,6 +386,11 @@
     const percentCanvas = document.getElementById("percentChart");
     const dbCanvas = document.getElementById("dbChart");
 
+    function setRandomNicknamePlaceholder() {
+      const randomIndex = Math.floor(Math.random() * nicknamePlaceholders.length);
+      studentNameInput.placeholder = `např. ${nicknamePlaceholders[randomIndex]}`;
+    }
+
     function parseNumberFromInput(id) {
       const rawValue = document.getElementById(id).value.trim().replace(",", ".");
       if (rawValue === "") return NaN;
@@ -394,25 +399,25 @@
 
     function parseInputValues() {
       return valueIds.map(id => {
-        const x = parseNumberFromInput(`${id}_x`);
-        const y = parseNumberFromInput(`${id}_y`);
-        if (!Number.isFinite(x) || !Number.isFinite(y)) return NaN;
-        return x * Math.pow(10, y);
+        const a = parseNumberFromInput(`${id}_x`);
+        const b = parseNumberFromInput(`${id}_y`);
+        if (!Number.isFinite(a) || !Number.isFinite(b)) return NaN;
+        return a * Math.pow(10, b);
       });
     }
 
     function updateDecimalValues() {
       valueIds.forEach(id => {
-        const x = parseNumberFromInput(`${id}_x`);
-        const y = parseNumberFromInput(`${id}_y`);
+        const a = parseNumberFromInput(`${id}_x`);
+        const b = parseNumberFromInput(`${id}_y`);
         const output = document.getElementById(`${id}_decimal`);
 
-        if (!Number.isFinite(x) || !Number.isFinite(y)) {
+        if (!Number.isFinite(a) || !Number.isFinite(b)) {
           output.textContent = "–";
           return;
         }
 
-        output.textContent = formatDecimalValue(x * Math.pow(10, y));
+        output.textContent = formatDecimalValue(a * Math.pow(10, b));
       });
     }
 
@@ -422,7 +427,7 @@
 
       return value.toLocaleString("cs-CZ", {
         useGrouping: false,
-        maximumFractionDigits: 12
+        maximumFractionDigits: 15
       });
     }
 
@@ -435,8 +440,7 @@
         return "Všechny hodnoty napětí musí být větší než nula. Jinak nelze počítat relativní napětí ani decibely.";
       }
 
-      const reference = values[2];
-      if (reference <= 0) {
+      if (values[2] <= 0) {
         return "Referenční hodnota při 1000 Hz musí být větší než nula.";
       }
 
@@ -464,13 +468,18 @@
       return values.map(value => 20 * Math.log10(value / reference));
     }
 
-    function setupCanvas(canvas) {
-      const rect = canvas.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
+    function setupCanvas(canvas, forcedWidth = null, forcedHeight = null, forcedScale = null) {
+      const rect = forcedWidth && forcedHeight
+        ? { width: forcedWidth, height: forcedHeight }
+        : canvas.getBoundingClientRect();
+
+      const dpr = forcedScale || window.devicePixelRatio || 1;
       canvas.width = Math.round(rect.width * dpr);
       canvas.height = Math.round(rect.height * dpr);
+
       const ctx = canvas.getContext("2d");
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
       return {
         ctx,
         width: rect.width,
@@ -482,8 +491,8 @@
       if (value === 0) return 1;
       const exponent = Math.floor(Math.log10(Math.abs(value)));
       const fraction = Math.abs(value) / Math.pow(10, exponent);
-      let niceFraction;
 
+      let niceFraction;
       if (fraction <= 1) niceFraction = 1;
       else if (fraction <= 2) niceFraction = 2;
       else if (fraction <= 5) niceFraction = 5;
@@ -495,6 +504,7 @@
     function makeScale(values, options = {}) {
       const includeZero = options.includeZero ?? false;
       const forceZeroMinimum = options.forceZeroMinimum ?? false;
+
       let min = Math.min(...values);
       let max = Math.max(...values);
 
@@ -528,13 +538,17 @@
       return { min: niceMin, max: niceMax, tickStep };
     }
 
-    function drawAxes(ctx, width, height, yScale, yLabel) {
-      const margin = { top: 32, right: 24, bottom: 72, left: 78 };
+    function drawAxes(ctx, width, height, yScale, yLabel, uiScale = 1) {
+      const margin = {
+        top: 32 * uiScale,
+        right: 24 * uiScale,
+        bottom: 72 * uiScale,
+        left: 78 * uiScale
+      };
       const plotWidth = width - margin.left - margin.right;
       const plotHeight = height - margin.top - margin.bottom;
 
       ctx.clearRect(0, 0, width, height);
-      ctx.font = "13px system-ui, sans-serif";
       ctx.textBaseline = "middle";
       ctx.lineWidth = 1;
 
@@ -544,6 +558,7 @@
       ctx.strokeStyle = "#e5e7eb";
       ctx.fillStyle = "#4b5563";
       ctx.textAlign = "right";
+      ctx.font = `${13 * uiScale}px system-ui, sans-serif`;
 
       for (let tick = yScale.min; tick <= yScale.max + yScale.tickStep / 2; tick += yScale.tickStep) {
         const y = margin.top + (yScale.max - tick) / (yScale.max - yScale.min) * plotHeight;
@@ -551,7 +566,7 @@
         ctx.moveTo(margin.left, y);
         ctx.lineTo(width - margin.right, y);
         ctx.stroke();
-        ctx.fillText(formatTick(tick), margin.left - 10, y);
+        ctx.fillText(formatTick(tick), margin.left - 10 * uiScale, y);
       }
 
       ctx.fillStyle = "#374151";
@@ -559,12 +574,15 @@
       ctx.textBaseline = "top";
       frequencies.forEach((label, index) => {
         const x = margin.left + (index + 0.5) * plotWidth / frequencies.length;
-        ctx.fillText(String(index + 1), x, height - margin.bottom + 14);
-        ctx.fillText(label, x, height - margin.bottom + 34);
+        const isReference = index === 2;
+        ctx.font = `${isReference ? "bold " : ""}${13 * uiScale}px system-ui, sans-serif`;
+        ctx.fillStyle = isReference ? "#111827" : "#374151";
+        ctx.fillText(String(index + 1), x, height - margin.bottom + 14 * uiScale);
+        ctx.fillText(label, x, height - margin.bottom + 34 * uiScale);
       });
 
       ctx.strokeStyle = "#111827";
-      ctx.lineWidth = 1.2;
+      ctx.lineWidth = 1.2 * uiScale;
       ctx.beginPath();
       ctx.moveTo(margin.left, margin.top);
       ctx.lineTo(margin.left, height - margin.bottom);
@@ -572,12 +590,12 @@
       ctx.stroke();
 
       ctx.save();
-      ctx.translate(18, margin.top + plotHeight / 2);
+      ctx.translate(18 * uiScale, margin.top + plotHeight / 2);
       ctx.rotate(-Math.PI / 2);
       ctx.fillStyle = "#111827";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.font = "14px system-ui, sans-serif";
+      ctx.font = `${14 * uiScale}px system-ui, sans-serif`;
       ctx.fillText(yLabel, 0, 0);
       ctx.restore();
 
@@ -594,14 +612,22 @@
       return margin.top + (yScale.max - value) / (yScale.max - yScale.min) * plotHeight;
     }
 
-    function drawBarChart(canvas, values) {
-      const { ctx, width, height } = setupCanvas(canvas);
+    function formatSignificantDigits(value, digits) {
+      if (!Number.isFinite(value)) return "–";
+      return Number(value.toPrecision(digits)).toLocaleString("cs-CZ", {
+        useGrouping: false,
+        maximumFractionDigits: 12
+      });
+    }
+
+    function drawBarChart(canvas, values, forcedWidth = null, forcedHeight = null, forcedScale = null, uiScale = 1) {
+      const { ctx, width, height } = setupCanvas(canvas, forcedWidth, forcedHeight, forcedScale);
       const yScale = makeScale(values, { forceZeroMinimum: true });
-      const { margin, plotWidth, plotHeight } = drawAxes(ctx, width, height, yScale, "Relativní napětí");
+      const { margin, plotWidth, plotHeight } = drawAxes(ctx, width, height, yScale, "Relativní napětí", uiScale);
 
       const zeroY = yToPixel(0, yScale, margin, plotHeight);
       const barSlot = plotWidth / values.length;
-      const barWidth = Math.min(54, barSlot * 0.58);
+      const barWidth = Math.min(54 * uiScale, barSlot * 0.58);
 
       values.forEach((value, index) => {
         const xCenter = margin.left + (index + 0.5) * barSlot;
@@ -613,28 +639,21 @@
         ctx.fillRect(xCenter - barWidth / 2, barTop, barWidth, barHeight);
 
         ctx.strokeStyle = "#1d4ed8";
+        ctx.lineWidth = 1.2 * uiScale;
         ctx.strokeRect(xCenter - barWidth / 2, barTop, barWidth, barHeight);
 
         ctx.fillStyle = "#111827";
         ctx.textAlign = "center";
         ctx.textBaseline = "bottom";
-        ctx.font = "12px system-ui, sans-serif";
-        ctx.fillText(`${formatSignificantDigits(value, 2)}x`, xCenter, barTop - 6);
+        ctx.font = `${12 * uiScale}px system-ui, sans-serif`;
+        ctx.fillText(`${formatSignificantDigits(value, 2)}x`, xCenter, barTop - 6 * uiScale);
       });
     }
 
-    function formatSignificantDigits(value, digits) {
-      if (!Number.isFinite(value)) return "–";
-      return Number(value.toPrecision(digits)).toLocaleString("cs-CZ", {
-        useGrouping: false,
-        maximumFractionDigits: 12
-      });
-    }
-
-    function drawLineChart(canvas, values) {
-      const { ctx, width, height } = setupCanvas(canvas);
+    function drawLineChart(canvas, values, forcedWidth = null, forcedHeight = null, forcedScale = null, uiScale = 1) {
+      const { ctx, width, height } = setupCanvas(canvas, forcedWidth, forcedHeight, forcedScale);
       const yScale = makeScale(values, { includeZero: true });
-      const { margin, plotWidth, plotHeight } = drawAxes(ctx, width, height, yScale, "Relativní prahová hladina intenzity (dB)");
+      const { margin, plotWidth, plotHeight } = drawAxes(ctx, width, height, yScale, "Relativní prahová hladina intenzity (dB)", uiScale);
 
       const points = values.map((value, index) => ({
         x: margin.left + (index + 0.5) * plotWidth / values.length,
@@ -645,7 +664,8 @@
       if (yScale.min <= 0 && yScale.max >= 0) {
         const zeroY = yToPixel(0, yScale, margin, plotHeight);
         ctx.strokeStyle = "#9ca3af";
-        ctx.setLineDash([6, 4]);
+        ctx.lineWidth = 1.2 * uiScale;
+        ctx.setLineDash([6 * uiScale, 4 * uiScale]);
         ctx.beginPath();
         ctx.moveTo(margin.left, zeroY);
         ctx.lineTo(width - margin.right, zeroY);
@@ -654,7 +674,7 @@
       }
 
       ctx.strokeStyle = "#2563eb";
-      ctx.lineWidth = 2.5;
+      ctx.lineWidth = 2.5 * uiScale;
       ctx.beginPath();
       points.forEach((point, index) => {
         if (index === 0) ctx.moveTo(point.x, point.y);
@@ -662,26 +682,23 @@
       });
       ctx.stroke();
 
+      const pointRadius = 5 * uiScale;
+
       points.forEach(point => {
         ctx.fillStyle = "#ffffff";
         ctx.strokeStyle = "#1d4ed8";
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2 * uiScale;
         ctx.beginPath();
-        ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+        ctx.arc(point.x, point.y, pointRadius, 0, 2 * Math.PI);
         ctx.fill();
         ctx.stroke();
 
         ctx.fillStyle = "#111827";
         ctx.textAlign = "center";
         ctx.textBaseline = "bottom";
-        ctx.font = "12px system-ui, sans-serif";
-        ctx.fillText(`${point.value.toFixed(1)} dB`, point.x, point.y - 8);
+        ctx.font = `${12 * uiScale}px system-ui, sans-serif`;
+        ctx.fillText(`${point.value.toFixed(1).replace(".", ",")} dB`, point.x, point.y - 8 * uiScale);
       });
-    }
-
-    function drawEmptyCharts() {
-      drawPlaceholder(percentCanvas, "Po vyplnění hodnot se zde zobrazí sloupcový graf relativního napětí.");
-      drawPlaceholder(dbCanvas, "Po vyplnění hodnot se zde zobrazí spojnicový graf v decibelech.");
     }
 
     function drawPlaceholder(canvas, message) {
@@ -696,25 +713,28 @@
       ctx.fillText(message, width / 2, height / 2);
     }
 
+    function drawEmptyCharts() {
+      drawPlaceholder(percentCanvas, "Po vyplnění hodnot se zde zobrazí sloupcový graf relativního napětí.");
+      drawPlaceholder(dbCanvas, "Po vyplnění hodnot se zde zobrazí spojnicový graf v decibelech.");
+    }
+
     function calculateAndDraw() {
       updateDecimalValues();
       const values = parseInputValues();
       const error = validate(values);
       showError(error);
+
       if (error) return false;
 
-      const relativeVoltageValues = computeRelativeVoltage(values);
-      const dbValues = computeDecibels(values);
-
-      drawBarChart(percentCanvas, relativeVoltageValues);
-      drawLineChart(dbCanvas, dbValues);
+      drawBarChart(percentCanvas, computeRelativeVoltage(values));
+      drawLineChart(dbCanvas, computeDecibels(values));
       return true;
     }
 
-    function getValidValuesOrShowError() {
+    function getValidValuesOrShowError(requireName = false) {
       updateDecimalValues();
 
-      if (!studentNameInput.value.trim()) {
+      if (requireName && !studentNameInput.value.trim()) {
         showError("Pro stažení nebo sdílení obrázku vyplň prosím jméno nebo přezdívku.");
         studentNameInput.focus();
         return null;
@@ -723,7 +743,9 @@
       const values = parseInputValues();
       const error = validate(values);
       showError(error);
+
       if (error) return null;
+
       drawBarChart(percentCanvas, computeRelativeVoltage(values));
       drawLineChart(dbCanvas, computeDecibels(values));
       return values;
@@ -736,7 +758,7 @@
       ctx.arcTo(x + width, y, x + width, y + height, r);
       ctx.arcTo(x + width, y + height, x, y + height, r);
       ctx.arcTo(x, y + height, x, y, r);
-      ctx.arcTo(x, y, x + width, y, r);
+      ctx.arcTo(x, y, x + r, y, r);
       ctx.closePath();
     }
 
@@ -763,69 +785,105 @@
       return currentY + lineHeight;
     }
 
-    function drawExportTitle(ctx, width, studentName) {
+    function drawExportTitle(ctx, exportWidth, studentName) {
       ctx.fillStyle = "#111827";
-      ctx.font = "bold 34px system-ui, sans-serif";
+      ctx.font = "bold 48px system-ui, sans-serif";
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
-      ctx.fillText("Tvůj audiogram (relativní)", 50, 42);
+      ctx.fillText("Tvůj audiogram (relativní)", 60, 50);
 
-      ctx.font = "18px system-ui, sans-serif";
+      ctx.font = "28px system-ui, sans-serif";
       ctx.fillStyle = "#4b5563";
-      const nameText = studentName ? `Jméno nebo přezdívka: ${studentName}` : "Jméno nebo přezdívka: neuvedeno";
-      ctx.fillText(nameText, 50, 88);
+      const nameText = `Jméno nebo přezdívka: ${studentName}`;
+      ctx.fillText(nameText, 60, 118);
 
       const date = new Date().toLocaleDateString("cs-CZ");
       ctx.textAlign = "right";
-      ctx.fillText(date, width - 50, 88);
+      ctx.fillText(date, exportWidth - 60, 118);
       ctx.textAlign = "left";
     }
 
+    function toSubscript(text) {
+      const map = {
+        "0": "₀",
+        "1": "₁",
+        "2": "₂",
+        "3": "₃",
+        "4": "₄",
+        "5": "₅",
+        "6": "₆",
+        "7": "₇",
+        "8": "₈",
+        "9": "₉",
+        "x": "ₓ",
+        "X": "ₓ"
+      };
+
+      return String(text)
+        .split("")
+        .map(char => map[char] || char)
+        .join("");
+    }
+
+    function formatVoltageSymbol(index) {
+      const digits = frequencies[index].replace(/\s/g, "").replace("Hz", "");
+      return `U${toSubscript(digits)}`;
+    }
+
     function drawExportValuesTable(ctx, values, x, y, width) {
-      const rowHeight = 34;
-      const headerHeight = 38;
+      const rowHeight = 48;
+      const headerHeight = 58;
       const totalHeight = headerHeight + rowHeight * values.length;
 
-      drawRoundedRect(ctx, x, y, width, totalHeight, 14);
+      drawRoundedRect(ctx, x, y, width, totalHeight, 18);
       ctx.fillStyle = "#ffffff";
       ctx.fill();
       ctx.strokeStyle = "#d1d5db";
+      ctx.lineWidth = 1.5;
       ctx.stroke();
 
       ctx.fillStyle = "#f3f4f6";
-      drawRoundedRect(ctx, x, y, width, headerHeight, 14);
+      drawRoundedRect(ctx, x, y, width, headerHeight, 18);
       ctx.fill();
-      ctx.fillRect(x, y + 18, width, headerHeight - 18);
+      ctx.fillRect(x, y + 24, width, headerHeight - 24);
 
-      const col1 = x + 24;
-      const col2 = x + 175;
-      const col3 = x + 365;
-      const col4 = x + 555;
+      const col1 = x + 28;
+      const col2 = x + 220;
+      const col3 = x + 700;
+      const col4 = x + 1080;
 
       ctx.fillStyle = "#111827";
-      ctx.font = "bold 16px system-ui, sans-serif";
+      ctx.font = "bold 24px system-ui, sans-serif";
       ctx.textBaseline = "middle";
+      ctx.textAlign = "left";
       ctx.fillText("Frekvence", col1, y + headerHeight / 2);
-      ctx.fillText("Napětí", col2, y + headerHeight / 2);
+      ctx.fillText("Minimální slyšitelné napětí", col2, y + headerHeight / 2);
       ctx.fillText("Relativní napětí", col3, y + headerHeight / 2);
-      ctx.fillText("Relativní hladina", col4, y + headerHeight / 2);
+      ctx.fillText("Relativní prahová hladina", col4, y + headerHeight / 2);
 
       const relativeVoltage = computeRelativeVoltage(values);
       const decibels = computeDecibels(values);
 
-      ctx.font = "15px system-ui, sans-serif";
       values.forEach((value, index) => {
         const rowY = y + headerHeight + index * rowHeight;
+        const isReference = index === 2;
 
-        ctx.strokeStyle = "#e5e7eb";
+        if (isReference) {
+          ctx.fillStyle = "#eaf2ff";
+          ctx.fillRect(x, rowY, width, rowHeight);
+        }
+
+        ctx.strokeStyle = isReference ? "#bfdbfe" : "#e5e7eb";
+        ctx.lineWidth = isReference ? 1.5 : 1;
         ctx.beginPath();
         ctx.moveTo(x, rowY);
         ctx.lineTo(x + width, rowY);
         ctx.stroke();
 
         ctx.fillStyle = "#111827";
+        ctx.font = `${isReference ? "bold " : ""}22px system-ui, sans-serif`;
         ctx.fillText(frequencies[index], col1, rowY + rowHeight / 2);
-        ctx.fillText(`${voltageLabels[index]} = ${formatDecimalValue(value)} V`, col2, rowY + rowHeight / 2);
+        ctx.fillText(`${formatVoltageSymbol(index)} = ${formatDecimalValue(value)} V`, col2, rowY + rowHeight / 2);
         ctx.fillText(`${formatSignificantDigits(relativeVoltage[index], 2)}x`, col3, rowY + rowHeight / 2);
         ctx.fillText(`${decibels[index].toFixed(1).replace(".", ",")} dB`, col4, rowY + rowHeight / 2);
       });
@@ -835,72 +893,123 @@
 
     function drawExportSectionTitle(ctx, title, subtitle, x, y, width) {
       ctx.fillStyle = "#111827";
-      ctx.font = "bold 22px system-ui, sans-serif";
+      ctx.font = "bold 32px system-ui, sans-serif";
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
       ctx.fillText(title, x, y);
 
       ctx.fillStyle = "#4b5563";
-      ctx.font = "16px system-ui, sans-serif";
-      return drawWrappedText(ctx, subtitle, x, y + 34, width, 22);
+      ctx.font = "23px system-ui, sans-serif";
+      return drawWrappedText(ctx, subtitle, x, y + 46, width, 32);
     }
 
     function drawCanvasIntoExport(ctx, sourceCanvas, x, y, width, height) {
-      drawRoundedRect(ctx, x, y, width, height, 16);
+      drawRoundedRect(ctx, x, y, width, height, 18);
       ctx.fillStyle = "#ffffff";
       ctx.fill();
       ctx.strokeStyle = "#d1d5db";
+      ctx.lineWidth = 1.5;
       ctx.stroke();
 
+      const padding = 20;
+      const availableWidth = width - 2 * padding;
+      const availableHeight = height - 2 * padding;
+
+      const sourceWidth = sourceCanvas.width;
+      const sourceHeight = sourceCanvas.height;
+
+      const scale = Math.min(
+        availableWidth / sourceWidth,
+        availableHeight / sourceHeight
+      );
+
+      const drawWidth = sourceWidth * scale;
+      const drawHeight = sourceHeight * scale;
+      const drawX = x + padding + (availableWidth - drawWidth) / 2;
+      const drawY = y + padding + (availableHeight - drawHeight) / 2;
+
       ctx.save();
-      drawRoundedRect(ctx, x + 1, y + 1, width - 2, height - 2, 15);
+      drawRoundedRect(ctx, x + 1, y + 1, width - 2, height - 2, 17);
       ctx.clip();
-      ctx.drawImage(sourceCanvas, x + 10, y + 10, width - 20, height - 20);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(sourceCanvas, drawX, drawY, drawWidth, drawHeight);
       ctx.restore();
     }
 
     function createExportCanvas(values) {
-      const exportWidth = 1200;
-      const exportHeight = 1750;
+      // Výsledné PNG má šířku 1980 px. Grafy se ale pro export překreslí
+      // do vyššího vnitřního rozlišení, aby nepůsobily rozpixelovaně.
+      const exportWidth = 1980;
+      const exportHeight = 1230;
       const exportCanvas = document.createElement("canvas");
       exportCanvas.width = exportWidth;
       exportCanvas.height = exportHeight;
-      const ctx = exportCanvas.getContext("2d");
 
+      const ctx = exportCanvas.getContext("2d");
       ctx.fillStyle = "#f6f7fb";
       ctx.fillRect(0, 0, exportWidth, exportHeight);
 
       const studentName = studentNameInput.value.trim();
       drawExportTitle(ctx, exportWidth, studentName);
 
-      let y = 135;
-      y = drawExportValuesTable(ctx, values, 50, y, exportWidth - 100) + 48;
+      let y = 175;
+      y = drawExportValuesTable(ctx, values, 60, y, exportWidth - 120) + 44;
 
-      y = drawExportSectionTitle(
+      const gap = 48;
+      const leftX = 60;
+      const graphWidth = (exportWidth - 2 * 60 - gap) / 2;
+      const rightX = leftX + graphWidth + gap;
+
+      const leftSubtitleEnd = drawExportSectionTitle(
         ctx,
         "Graf 1: relativní napětí",
         "Kolikrát silnější musí zvuk být, abys ho slyšel/a?",
-        50,
+        leftX,
         y,
-        exportWidth - 100
-      ) + 18;
-      drawCanvasIntoExport(ctx, percentCanvas, 50, y, exportWidth - 100, 430);
-      y += 478;
+        graphWidth
+      );
 
-      y = drawExportSectionTitle(
+      const rightSubtitleEnd = drawExportSectionTitle(
         ctx,
         "Graf 2: relativní hladina intenzity v decibelech",
-        "Hladina intenzity zvuku: Lx = 20 log10(Ux/U1000) dB. Hodnota při 1000 Hz je tedy vždy 0 dB.",
-        50,
+        "Hladina intenzity zvuku: Lₓ = 20 log₁₀(Uₓ/U₁₀₀₀) dB. Hodnota při 1000 Hz je tedy vždy 0 dB.",
+        rightX,
         y,
-        exportWidth - 100
-      ) + 18;
-      drawCanvasIntoExport(ctx, dbCanvas, 50, y, exportWidth - 100, 430);
+        graphWidth
+      );
 
-      ctx.fillStyle = "#6b7280";
-      ctx.font = "14px system-ui, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("Relativní audiogram vytvořený z minimálního slyšitelného napětí.", exportWidth / 2, exportHeight - 36);
+      const graphY = Math.max(leftSubtitleEnd, rightSubtitleEnd) + 18;
+      const graphHeight = 510;
+      const chartPadding = 20;
+      const chartWidth = graphWidth - 2 * chartPadding;
+      const chartHeight = graphHeight - 2 * chartPadding;
+      const chartScale = 6;
+      const exportGraphUiScale = 1.6;
+
+      const exportBarChart = document.createElement("canvas");
+      const exportLineChart = document.createElement("canvas");
+
+      drawBarChart(
+        exportBarChart,
+        computeRelativeVoltage(values),
+        chartWidth,
+        chartHeight,
+        chartScale,
+        exportGraphUiScale
+      );
+
+      drawLineChart(
+        exportLineChart,
+        computeDecibels(values),
+        chartWidth,
+        chartHeight,
+        chartScale,
+        exportGraphUiScale
+      );
+
+      drawCanvasIntoExport(ctx, exportBarChart, leftX, graphY, graphWidth, graphHeight);
+      drawCanvasIntoExport(ctx, exportLineChart, rightX, graphY, graphWidth, graphHeight);
 
       return exportCanvas;
     }
@@ -912,6 +1021,7 @@
         .replace(/[^a-zA-Z0-9_-]+/g, "-")
         .replace(/^-+|-+$/g, "")
         .toLowerCase();
+
       return cleaned || "audiogram";
     }
 
@@ -980,20 +1090,21 @@
       inputIds.forEach(id => {
         document.getElementById(id).value = "";
       });
+      setRandomNicknamePlaceholder();
       updateDecimalValues();
       showError("");
       drawEmptyCharts();
     });
 
     downloadButton.addEventListener("click", () => {
-      const values = getValidValuesOrShowError();
+      const values = getValidValuesOrShowError(true);
       if (!values) return;
       const exportCanvas = createExportCanvas(values);
       downloadCanvas(exportCanvas);
     });
 
     shareButton.addEventListener("click", async () => {
-      const values = getValidValuesOrShowError();
+      const values = getValidValuesOrShowError(true);
       if (!values) return;
       const exportCanvas = createExportCanvas(values);
       await shareCanvas(exportCanvas);
@@ -1008,11 +1119,6 @@
         drawEmptyCharts();
       }
     });
-
-    function setRandomNicknamePlaceholder() {
-      const randomIndex = Math.floor(Math.random() * nicknamePlaceholders.length);
-      studentNameInput.placeholder = `např. ${nicknamePlaceholders[randomIndex]}`;
-    }
 
     setRandomNicknamePlaceholder();
     updateDecimalValues();
