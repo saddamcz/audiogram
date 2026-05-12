@@ -89,6 +89,19 @@
       font-size: 0.9rem;
     }
 
+    .name-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+
+    .name-input:focus {
+      outline: 2px solid rgba(37, 99, 235, 0.25);
+      border-color: var(--accent);
+    }
+
     .scientific-row {
       display: grid;
       grid-template-columns: minmax(72px, 1fr) auto minmax(58px, 0.7fr) auto minmax(110px, 1.2fr);
@@ -217,6 +230,10 @@
     }
 
     @media (max-width: 480px) {
+      main {
+        padding: 16px;
+      }
+
       .scientific-row {
         grid-template-columns: 1fr auto 0.7fr auto;
       }
@@ -241,12 +258,17 @@
 
         <form id="calculatorForm" class="inputs">
           <div class="input-group">
+            <label class="input-title" for="studentName">Jméno nebo přezdívka</label>
+            <input type="text" id="studentName" class="name-input" autocomplete="name" placeholder="" />
+          </div>
+
+          <div class="input-group">
             <div class="input-title">50 Hz</div>
             <div class="input-subtitle">Minimální slyšitelné napětí (U<sub>50</sub>)</div>
             <div class="scientific-row">
-              <input type="number" id="u50_x" min="0" step="any" inputmode="decimal" aria-label="50 Hz, X" required />
+              <input type="number" id="u50_x" min="0" step="any" inputmode="decimal" aria-label="50 Hz, A" required />
               <span class="times-ten">× 10</span>
-              <input type="number" id="u50_y" class="exponent-input" step="1" inputmode="numeric" aria-label="50 Hz, exponent Y" required />
+              <input type="number" id="u50_y" class="exponent-input" step="1" inputmode="numeric" aria-label="50 Hz, exponent B" required />
               <span class="unit">V</span>
               <span class="decimal-value">= <strong id="u50_decimal">–</strong> V</span>
             </div>
@@ -256,9 +278,9 @@
             <div class="input-title">250 Hz</div>
             <div class="input-subtitle">Minimální slyšitelné napětí (U<sub>250</sub>)</div>
             <div class="scientific-row">
-              <input type="number" id="u250_x" min="0" step="any" inputmode="decimal" aria-label="250 Hz, X" required />
+              <input type="number" id="u250_x" min="0" step="any" inputmode="decimal" aria-label="250 Hz, A" required />
               <span class="times-ten">× 10</span>
-              <input type="number" id="u250_y" class="exponent-input" step="1" inputmode="numeric" aria-label="250 Hz, exponent Y" required />
+              <input type="number" id="u250_y" class="exponent-input" step="1" inputmode="numeric" aria-label="250 Hz, exponent B" required />
               <span class="unit">V</span>
               <span class="decimal-value">= <strong id="u250_decimal">–</strong> V</span>
             </div>
@@ -268,9 +290,9 @@
             <div class="input-title">1000 Hz</div>
             <div class="input-subtitle">Minimální slyšitelné napětí - referenční (U<sub>1000</sub>)</div>
             <div class="scientific-row">
-              <input type="number" id="u1000_x" min="0" step="any" inputmode="decimal" aria-label="1000 Hz, X" required />
+              <input type="number" id="u1000_x" min="0" step="any" inputmode="decimal" aria-label="1000 Hz, A" required />
               <span class="times-ten">× 10</span>
-              <input type="number" id="u1000_y" class="exponent-input" step="1" inputmode="numeric" aria-label="1000 Hz, exponent Y" required />
+              <input type="number" id="u1000_y" class="exponent-input" step="1" inputmode="numeric" aria-label="1000 Hz, exponent B" required />
               <span class="unit">V</span>
               <span class="decimal-value">= <strong id="u1000_decimal">–</strong> V</span>
             </div>
@@ -280,9 +302,9 @@
             <div class="input-title">5000 Hz</div>
             <div class="input-subtitle">Minimální slyšitelné napětí (U<sub>5000</sub>)</div>
             <div class="scientific-row">
-              <input type="number" id="u5000_x" min="0" step="any" inputmode="decimal" aria-label="5000 Hz, X" required />
+              <input type="number" id="u5000_x" min="0" step="any" inputmode="decimal" aria-label="5000 Hz, A" required />
               <span class="times-ten">× 10</span>
-              <input type="number" id="u5000_y" class="exponent-input" step="1" inputmode="numeric" aria-label="5000 Hz, exponent Y" required />
+              <input type="number" id="u5000_y" class="exponent-input" step="1" inputmode="numeric" aria-label="5000 Hz, exponent B" required />
               <span class="unit">V</span>
               <span class="decimal-value">= <strong id="u5000_decimal">–</strong> V</span>
             </div>
@@ -292,9 +314,9 @@
             <div class="input-title">10 000 Hz</div>
             <div class="input-subtitle">Minimální slyšitelné napětí (U<sub>10000</sub>)</div>
             <div class="scientific-row">
-              <input type="number" id="u10000_x" min="0" step="any" inputmode="decimal" aria-label="10 000 Hz, X" required />
+              <input type="number" id="u10000_x" min="0" step="any" inputmode="decimal" aria-label="10 000 Hz, A" required />
               <span class="times-ten">× 10</span>
-              <input type="number" id="u10000_y" class="exponent-input" step="1" inputmode="numeric" aria-label="10 000 Hz, exponent Y" required />
+              <input type="number" id="u10000_y" class="exponent-input" step="1" inputmode="numeric" aria-label="10 000 Hz, exponent B" required />
               <span class="unit">V</span>
               <span class="decimal-value">= <strong id="u10000_decimal">–</strong> V</span>
             </div>
@@ -304,9 +326,9 @@
             <div class="input-title">15 000 Hz</div>
             <div class="input-subtitle">Minimální slyšitelné napětí (U<sub>15000</sub>)</div>
             <div class="scientific-row">
-              <input type="number" id="u15000_x" min="0" step="any" inputmode="decimal" aria-label="15 000 Hz, X" required />
+              <input type="number" id="u15000_x" min="0" step="any" inputmode="decimal" aria-label="15 000 Hz, A" required />
               <span class="times-ten">× 10</span>
-              <input type="number" id="u15000_y" class="exponent-input" step="1" inputmode="numeric" aria-label="15 000 Hz, exponent Y" required />
+              <input type="number" id="u15000_y" class="exponent-input" step="1" inputmode="numeric" aria-label="15 000 Hz, exponent B" required />
               <span class="unit">V</span>
               <span class="decimal-value">= <strong id="u15000_decimal">–</strong> V</span>
             </div>
@@ -315,6 +337,8 @@
           <div class="buttons">
             <button type="submit" class="primary">Vykreslit grafy</button>
             <button type="button" class="secondary" id="clearButton">Vymazat</button>
+            <button type="button" class="secondary" id="downloadButton">Stáhnout obrázek</button>
+            <button type="button" class="secondary" id="shareButton">Sdílet obrázek</button>
           </div>
         </form>
 
@@ -340,10 +364,24 @@
   <script>
     const frequencies = ["50 Hz", "250 Hz", "1000 Hz", "5000 Hz", "10 000 Hz", "15 000 Hz"];
     const valueIds = ["u50", "u250", "u1000", "u5000", "u10000", "u15000"];
+    const voltageLabels = ["U50", "U250", "U1000", "U5000", "U10000", "U15000"];
     const inputIds = valueIds.flatMap(id => [`${id}_x`, `${id}_y`]);
+    const nicknamePlaceholders = [
+      "Agresivní křeček",
+      "Pompézní klokan",
+      "Vražedný sumýš",
+      "Brutální mravenečník",
+      "Závodní medůza",
+      "Nekompromisní makak",
+      "Zadumaný kojot",
+      "Bojovný lenochod"
+    ];
 
     const form = document.getElementById("calculatorForm");
     const clearButton = document.getElementById("clearButton");
+    const downloadButton = document.getElementById("downloadButton");
+    const shareButton = document.getElementById("shareButton");
+    const studentNameInput = document.getElementById("studentName");
     const errorBox = document.getElementById("errorBox");
     const percentCanvas = document.getElementById("percentChart");
     const dbCanvas = document.getElementById("dbChart");
@@ -382,8 +420,6 @@
       if (!Number.isFinite(value)) return "–";
       if (value === 0) return "0";
 
-      // Vždy zobrazujeme běžný desetinný zápis, nikdy mocninný/exponentový.
-      // Maximum 12 desetinných míst zabraňuje dlouhým zaokrouhlovacím chybám typu 0,30000000000000004.
       return value.toLocaleString("cs-CZ", {
         useGrouping: false,
         maximumFractionDigits: 12
@@ -396,7 +432,7 @@
       }
 
       if (values.some(value => value <= 0)) {
-        return "Všechny hodnoty napětí musí být větší než nula. Jinak nelze počítat procenta ani decibely.";
+        return "Všechny hodnoty napětí musí být větší než nula. Jinak nelze počítat relativní napětí ani decibely.";
       }
 
       const reference = values[2];
@@ -665,13 +701,263 @@
       const values = parseInputValues();
       const error = validate(values);
       showError(error);
-      if (error) return;
+      if (error) return false;
 
       const relativeVoltageValues = computeRelativeVoltage(values);
       const dbValues = computeDecibels(values);
 
       drawBarChart(percentCanvas, relativeVoltageValues);
       drawLineChart(dbCanvas, dbValues);
+      return true;
+    }
+
+    function getValidValuesOrShowError() {
+      updateDecimalValues();
+
+      if (!studentNameInput.value.trim()) {
+        showError("Pro stažení nebo sdílení obrázku vyplň prosím jméno nebo přezdívku.");
+        studentNameInput.focus();
+        return null;
+      }
+
+      const values = parseInputValues();
+      const error = validate(values);
+      showError(error);
+      if (error) return null;
+      drawBarChart(percentCanvas, computeRelativeVoltage(values));
+      drawLineChart(dbCanvas, computeDecibels(values));
+      return values;
+    }
+
+    function drawRoundedRect(ctx, x, y, width, height, radius) {
+      const r = Math.min(radius, width / 2, height / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + width, y, x + width, y + height, r);
+      ctx.arcTo(x + width, y + height, x, y + height, r);
+      ctx.arcTo(x, y + height, x, y, r);
+      ctx.arcTo(x, y, x + width, y, r);
+      ctx.closePath();
+    }
+
+    function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
+      const words = text.split(" ");
+      let line = "";
+      let currentY = y;
+
+      words.forEach(word => {
+        const testLine = line ? `${line} ${word}` : word;
+        if (ctx.measureText(testLine).width > maxWidth && line) {
+          ctx.fillText(line, x, currentY);
+          line = word;
+          currentY += lineHeight;
+        } else {
+          line = testLine;
+        }
+      });
+
+      if (line) {
+        ctx.fillText(line, x, currentY);
+      }
+
+      return currentY + lineHeight;
+    }
+
+    function drawExportTitle(ctx, width, studentName) {
+      ctx.fillStyle = "#111827";
+      ctx.font = "bold 34px system-ui, sans-serif";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      ctx.fillText("Tvůj audiogram (relativní)", 50, 42);
+
+      ctx.font = "18px system-ui, sans-serif";
+      ctx.fillStyle = "#4b5563";
+      const nameText = studentName ? `Jméno nebo přezdívka: ${studentName}` : "Jméno nebo přezdívka: neuvedeno";
+      ctx.fillText(nameText, 50, 88);
+
+      const date = new Date().toLocaleDateString("cs-CZ");
+      ctx.textAlign = "right";
+      ctx.fillText(date, width - 50, 88);
+      ctx.textAlign = "left";
+    }
+
+    function drawExportValuesTable(ctx, values, x, y, width) {
+      const rowHeight = 34;
+      const headerHeight = 38;
+      const totalHeight = headerHeight + rowHeight * values.length;
+
+      drawRoundedRect(ctx, x, y, width, totalHeight, 14);
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+      ctx.strokeStyle = "#d1d5db";
+      ctx.stroke();
+
+      ctx.fillStyle = "#f3f4f6";
+      drawRoundedRect(ctx, x, y, width, headerHeight, 14);
+      ctx.fill();
+      ctx.fillRect(x, y + 18, width, headerHeight - 18);
+
+      const col1 = x + 24;
+      const col2 = x + 175;
+      const col3 = x + 365;
+      const col4 = x + 555;
+
+      ctx.fillStyle = "#111827";
+      ctx.font = "bold 16px system-ui, sans-serif";
+      ctx.textBaseline = "middle";
+      ctx.fillText("Frekvence", col1, y + headerHeight / 2);
+      ctx.fillText("Napětí", col2, y + headerHeight / 2);
+      ctx.fillText("Relativní napětí", col3, y + headerHeight / 2);
+      ctx.fillText("Relativní hladina", col4, y + headerHeight / 2);
+
+      const relativeVoltage = computeRelativeVoltage(values);
+      const decibels = computeDecibels(values);
+
+      ctx.font = "15px system-ui, sans-serif";
+      values.forEach((value, index) => {
+        const rowY = y + headerHeight + index * rowHeight;
+
+        ctx.strokeStyle = "#e5e7eb";
+        ctx.beginPath();
+        ctx.moveTo(x, rowY);
+        ctx.lineTo(x + width, rowY);
+        ctx.stroke();
+
+        ctx.fillStyle = "#111827";
+        ctx.fillText(frequencies[index], col1, rowY + rowHeight / 2);
+        ctx.fillText(`${voltageLabels[index]} = ${formatDecimalValue(value)} V`, col2, rowY + rowHeight / 2);
+        ctx.fillText(`${formatSignificantDigits(relativeVoltage[index], 2)}x`, col3, rowY + rowHeight / 2);
+        ctx.fillText(`${decibels[index].toFixed(1).replace(".", ",")} dB`, col4, rowY + rowHeight / 2);
+      });
+
+      return y + totalHeight;
+    }
+
+    function drawExportSectionTitle(ctx, title, subtitle, x, y, width) {
+      ctx.fillStyle = "#111827";
+      ctx.font = "bold 22px system-ui, sans-serif";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      ctx.fillText(title, x, y);
+
+      ctx.fillStyle = "#4b5563";
+      ctx.font = "16px system-ui, sans-serif";
+      return drawWrappedText(ctx, subtitle, x, y + 34, width, 22);
+    }
+
+    function drawCanvasIntoExport(ctx, sourceCanvas, x, y, width, height) {
+      drawRoundedRect(ctx, x, y, width, height, 16);
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+      ctx.strokeStyle = "#d1d5db";
+      ctx.stroke();
+
+      ctx.save();
+      drawRoundedRect(ctx, x + 1, y + 1, width - 2, height - 2, 15);
+      ctx.clip();
+      ctx.drawImage(sourceCanvas, x + 10, y + 10, width - 20, height - 20);
+      ctx.restore();
+    }
+
+    function createExportCanvas(values) {
+      const exportWidth = 1200;
+      const exportHeight = 1750;
+      const exportCanvas = document.createElement("canvas");
+      exportCanvas.width = exportWidth;
+      exportCanvas.height = exportHeight;
+      const ctx = exportCanvas.getContext("2d");
+
+      ctx.fillStyle = "#f6f7fb";
+      ctx.fillRect(0, 0, exportWidth, exportHeight);
+
+      const studentName = studentNameInput.value.trim();
+      drawExportTitle(ctx, exportWidth, studentName);
+
+      let y = 135;
+      y = drawExportValuesTable(ctx, values, 50, y, exportWidth - 100) + 48;
+
+      y = drawExportSectionTitle(
+        ctx,
+        "Graf 1: relativní napětí",
+        "Kolikrát silnější musí zvuk být, abys ho slyšel/a?",
+        50,
+        y,
+        exportWidth - 100
+      ) + 18;
+      drawCanvasIntoExport(ctx, percentCanvas, 50, y, exportWidth - 100, 430);
+      y += 478;
+
+      y = drawExportSectionTitle(
+        ctx,
+        "Graf 2: relativní hladina intenzity v decibelech",
+        "Hladina intenzity zvuku: Lx = 20 log10(Ux/U1000) dB. Hodnota při 1000 Hz je tedy vždy 0 dB.",
+        50,
+        y,
+        exportWidth - 100
+      ) + 18;
+      drawCanvasIntoExport(ctx, dbCanvas, 50, y, exportWidth - 100, 430);
+
+      ctx.fillStyle = "#6b7280";
+      ctx.font = "14px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Relativní audiogram vytvořený z minimálního slyšitelného napětí.", exportWidth / 2, exportHeight - 36);
+
+      return exportCanvas;
+    }
+
+    function makeSafeFileName(name) {
+      const cleaned = name
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9_-]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .toLowerCase();
+      return cleaned || "audiogram";
+    }
+
+    function downloadCanvas(canvas) {
+      const studentName = studentNameInput.value.trim();
+      const fileName = `${makeSafeFileName(studentName)}-relativni-audiogram.png`;
+      const link = document.createElement("a");
+      link.download = fileName;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    }
+
+    async function shareCanvas(canvas) {
+      const studentName = studentNameInput.value.trim();
+      const fileName = `${makeSafeFileName(studentName)}-relativni-audiogram.png`;
+
+      return new Promise(resolve => {
+        canvas.toBlob(async blob => {
+          if (!blob) {
+            alert("Nepodařilo se vytvořit obrázek pro sdílení.");
+            resolve(false);
+            return;
+          }
+
+          const file = new File([blob], fileName, { type: "image/png" });
+
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                title: "Tvůj audiogram (relativní)",
+                text: "Můj relativní audiogram",
+                files: [file]
+              });
+              resolve(true);
+            } catch (error) {
+              if (error.name !== "AbortError") {
+                alert("Sdílení se nepodařilo. Můžeš použít tlačítko Stažení.");
+              }
+              resolve(false);
+            }
+          } else {
+            alert("Sdílení obrázku není v tomto zařízení nebo prohlížeči podporováno. Použij prosím tlačítko Stažení.");
+            resolve(false);
+          }
+        }, "image/png");
+      });
     }
 
     form.addEventListener("submit", event => {
@@ -690,12 +976,27 @@
     });
 
     clearButton.addEventListener("click", () => {
+      studentNameInput.value = "";
       inputIds.forEach(id => {
         document.getElementById(id).value = "";
       });
       updateDecimalValues();
       showError("");
       drawEmptyCharts();
+    });
+
+    downloadButton.addEventListener("click", () => {
+      const values = getValidValuesOrShowError();
+      if (!values) return;
+      const exportCanvas = createExportCanvas(values);
+      downloadCanvas(exportCanvas);
+    });
+
+    shareButton.addEventListener("click", async () => {
+      const values = getValidValuesOrShowError();
+      if (!values) return;
+      const exportCanvas = createExportCanvas(values);
+      await shareCanvas(exportCanvas);
     });
 
     window.addEventListener("resize", () => {
@@ -708,6 +1009,12 @@
       }
     });
 
+    function setRandomNicknamePlaceholder() {
+      const randomIndex = Math.floor(Math.random() * nicknamePlaceholders.length);
+      studentNameInput.placeholder = `např. ${nicknamePlaceholders[randomIndex]}`;
+    }
+
+    setRandomNicknamePlaceholder();
     updateDecimalValues();
     drawEmptyCharts();
   </script>
